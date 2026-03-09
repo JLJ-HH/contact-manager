@@ -1,30 +1,31 @@
-# Contact Manager - Verwaltungssystem
+# Contact Manager - GUI Verwaltungssystem
 
-Dieses Python-Programm ist ein leistungsfähiges Kommandozeilen-Tool zur strukturierten Verwaltung von Kontakten. Es ermöglicht das Speichern, Bearbeiten und Löschen von Personendaten in einer lokalen Datenbank.
+Diese Anwendung ist ein leistungsfähiges Tool zur Verwaltung von Kontakten mit einer benutzerfreundlichen grafischen Oberfläche (GUI).
 
 ## Funktionen
 
-- **Kontakte anzeigen**: Übersichtliche Tabellendarstellung aller gespeicherten Kontakte.
-- **Kontakt hinzufügen**: Interaktive Erstellung neuer Einträge mit Validierung von Name, E-Mail und Rufnummer.
-- **Kontakt ändern**: Gezielte Bearbeitung einzelner Felder eines bestehenden Kontakts.
-- **Kontakt löschen**: Einfaches Entfernen einzelner Einträge nach Bestätigung.
-- **Alle Daten löschen**: Sicherheitsgeschützte Funktion zum Zurücksetzen der gesamten Datenbank (erfordert PIN: `1234`).
-- **Persistenz**: Automatische Speicherung und Sortierung der Daten in der Datei `contacts.txt`.
+- **Grafische Oberfläche**: Einfache Bedienung über Fenster und Schaltflächen statt Terminal-Eingaben.
+- **Getrennte Namensfelder**: Kontakte werden nun nach **Vorname** und **Nachname** getrennt verwaltet.
+- **Tabellenansicht**: Alle Kontakte werden in einer sortierbaren Tabelle (Treeview) angezeigt.
+- **Interaktives Editieren**: Wähle einen Kontakt in der Tabelle aus, um seine Daten direkt in die Eingabefelder zu laden und zu bearbeiten.
+- **Sicherheitsfunktionen**: Bestätigungsdialoge verhindern versehentliches Löschen von Daten.
+- **Clean Code Struktur**: Trennung von Datenlogik (`data_manager.py`) und Benutzeroberfläche (`contact_manager.py`).
 
 ## Installation & Start
 
-1. **Voraussetzung**: Installiertes Python 3.
-2. **Download**: Lade die Datei `contact_manager.py` in ein Verzeichnis deiner Wahl.
-3. **Start**: Öffne ein Terminal im Verzeichnis und führe folgenden Befehl aus:
+1. **Voraussetzung**: Installiertes Python 3 (inkl. `tkinter`, was meist standardmäßig dabei ist).
+2. **Start**: Führe die Hauptdatei aus:
    ```bash
    python contact_manager.py
    ```
 
-## Datenstruktur
+## Datenstruktur & Migration
 
-Die Kontakte werden im folgenden Format in der `contacts.txt` gespeichert:
-`Name|Straße|PLZ|E-Mail|Telefonnummer`
+Die Daten werden in der `contacts.txt` im neuen Format gespeichert:
+`Vorname|Nachname|Straße|PLZ|E-Mail|Telefonnummer`
+
+**Hinweis**: Bestehende Daten im alten Format (`Name|Straße|...`) werden beim ersten Start automatisch erkannt und migriert, wobei der Name am ersten Leerzeichen in Vor- und Nachname gesplittet wird.
 
 ## Sicherheit
 
-Für kritische Operationen (wie das Löschen aller Daten) wird ein Sicherheitscode abgefragt. Standardmäßig ist dieser auf `1234` eingestellt.
+Kritische Aktionen wie das Löschen aller Daten erfordern eine Bestätigung über einen Sicherheitsdialog.
