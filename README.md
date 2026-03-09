@@ -1,31 +1,24 @@
-# Contact Manager - GUI Verwaltungssystem
+# Contact Manager - GUI Verwaltungssystem (mit Suche)
 
-Diese Anwendung ist ein leistungsfähiges Tool zur Verwaltung von Kontakten mit einer benutzerfreundlichen grafischen Oberfläche (GUI).
+Diese Anwendung wurde um eine leistungsfähige Such- und Filterfunktion erweitert.
 
 ## Funktionen
 
-- **Grafische Oberfläche**: Einfache Bedienung über Fenster und Schaltflächen statt Terminal-Eingaben.
-- **Getrennte Namensfelder**: Kontakte werden nun nach **Vorname** und **Nachname** getrennt verwaltet.
-- **Tabellenansicht**: Alle Kontakte werden in einer sortierbaren Tabelle (Treeview) angezeigt.
-- **Interaktives Editieren**: Wähle einen Kontakt in der Tabelle aus, um seine Daten direkt in die Eingabefelder zu laden und zu bearbeiten.
-- **Sicherheitsfunktionen**: Bestätigungsdialoge verhindern versehentliches Löschen von Daten.
-- **Clean Code Struktur**: Trennung von Datenlogik (`data_manager.py`) und Benutzeroberfläche (`contact_manager.py`).
+- **Gefilterte Anzeige**: Die Kontaktliste ist beim Start standardmäßig leer. Kontakte erscheinen erst, wenn du im Suchfeld tippst.
+- **Suche**: Filtere Kontakte in Echtzeit nach Vorname, Nachname oder Telefonnummer.
+- **Spezialbefehle**: Gib `zeige alle` oder `zeige liste` in das Suchfeld ein, um alle Kontakte auf einmal zu sehen.
+- **Punktuelles Ändern**: Wähle einen Kontakt in der Tabelle aus. Die Daten werden in die Felder geladen. Du kannst nun einzelne Felder (z.B. nur den Nachnamen) ändern und auf "Ändern" klicken.
+- **Clean Code**: Datenlogik (`data_manager.py`) und GUI (`contact_manager.py`) sind strikt getrennt.
 
 ## Installation & Start
 
-1. **Voraussetzung**: Installiertes Python 3 (inkl. `tkinter`, was meist standardmäßig dabei ist).
-2. **Start**: Führe die Hauptdatei aus:
+1. **Voraussetzung**: Python 3.
+2. **Start**:
    ```bash
    python contact_manager.py
    ```
 
-## Datenstruktur & Migration
+## Datenstruktur
 
-Die Daten werden in der `contacts.txt` im neuen Format gespeichert:
+Die Daten liegen in der `contacts.txt` im Format:
 `Vorname|Nachname|Straße|PLZ|E-Mail|Telefonnummer`
-
-**Hinweis**: Bestehende Daten im alten Format (`Name|Straße|...`) werden beim ersten Start automatisch erkannt und migriert, wobei der Name am ersten Leerzeichen in Vor- und Nachname gesplittet wird.
-
-## Sicherheit
-
-Kritische Aktionen wie das Löschen aller Daten erfordern eine Bestätigung über einen Sicherheitsdialog.
