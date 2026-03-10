@@ -15,7 +15,7 @@ class ContactApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Contact Manager Pro")
-        self.root.geometry("950x650")
+        self.root.geometry("1000x700")
         self.root.configure(bg="#f0f0f0")
 
         # Daten laden
@@ -55,7 +55,7 @@ class ContactApp:
         form_frame = tk.LabelFrame(self.root, text="Kontakt-Details", padx=10, pady=10, bg="#f0f0f0", font=("Arial", 9, "bold"))
         form_frame.pack(padx=20, pady=10, fill="x")
 
-        labels = ["Vorname:", "Nachname:", "Straße:", "PLZ:", "E-Mail:", "Telefon:"]
+        labels = ["Vorname:", "Nachname:", "Straße:", "PLZ:", "E-Mail:", "Telefon:", "Mobil:"]
         self.entries = {}
 
         for i, text in enumerate(labels):
@@ -79,12 +79,12 @@ class ContactApp:
         tab_frame = tk.Frame(self.root)
         tab_frame.pack(padx=20, pady=10, fill="both", expand=True)
 
-        spalten = ("Vorname", "Nachname", "Straße", "PLZ", "E-Mail", "Telefon")
+        spalten = ("Vorname", "Nachname", "Straße", "PLZ", "E-Mail", "Telefon", "Mobil")
         self.tree = ttk.Treeview(tab_frame, columns=spalten, show="headings")
         
         for col in spalten:
             self.tree.heading(col, text=col)
-            self.tree.column(col, width=130)
+            self.tree.column(col, width=140)
 
         self.tree.pack(side="left", fill="both", expand=True)
         
@@ -118,12 +118,13 @@ class ContactApp:
                 matches = True
             elif (filter_text in k["vorname"].lower() or 
                   filter_text in k["nachname"].lower() or 
-                  filter_text in k["rufnummer"].lower()):
+                  filter_text in k["rufnummer"].lower() or
+                  filter_text in k.get("mobil", "").lower()):
                 matches = True
             
             if matches:
                 # Wir speichern den Original-Index als iid (item id)
-                self.tree.insert("", "end", iid=str(i), values=(k["vorname"], k["nachname"], k["strasse"], k["plz"], k["email"], k["rufnummer"]))
+                self.tree.insert("", "end", iid=str(i), values=(k["vorname"], k["nachname"], k["strasse"], k["plz"], k["email"], k["rufnummer"], k.get("mobil", "")))
 
     def get_input_data(self):
         """Hilfsfunktion zum Auslesen der Entry-Felder."""
@@ -133,7 +134,8 @@ class ContactApp:
             "strasse": self.entries["Straße:"].get().strip(),
             "plz": self.entries["PLZ:"].get().strip(),
             "email": self.entries["E-Mail:"].get().strip(),
-            "rufnummer": self.entries["Telefon:"].get().strip()
+            "rufnummer": self.entries["Telefon:"].get().strip(),
+            "mobil": self.entries["Mobil:"].get().strip()
         }
 
     def clear_inputs(self):
@@ -150,7 +152,7 @@ class ContactApp:
         values = self.tree.item(selected[0])["values"]
         self.clear_inputs()
         # Einträge befüllen (nur wenn Werte vorhanden sind)
-        for i, key in enumerate(["Vorname:", "Nachname:", "Straße:", "PLZ:", "E-Mail:", "Telefon:"]):
+        for i, key in enumerate(["Vorname:", "Nachname:", "Straße:", "PLZ:", "E-Mail:", "Telefon:", "Mobil:"]):
             val = values[i]
             self.entries[key].insert(0, str(val) if val != "None" and val != "" else "")
 
