@@ -6,8 +6,10 @@
 # ==============================================================================
 
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import messagebox, ttk, simpledialog
 import data_manager
+import configparser
+import os
 
 class ContactApp:
     def __init__(self, root):
@@ -18,11 +20,21 @@ class ContactApp:
 
         # Daten laden
         self.kontakte = data_manager.laden()
-        self.sicherheits_code = "1234"
+        self.load_config()
 
         self.setup_ui()
         # Initial keine Kontakte anzeigen (leere Liste)
         self.update_tabelle(filter_text=None)
+
+    def load_config(self):
+        """Lädt die Sicherheitskonfiguration aus der settings.ini."""
+        self.config = configparser.ConfigParser()
+        ini_path = "settings.ini"
+        if os.path.exists(ini_path):
+            self.config.read(ini_path)
+            self.sicherheits_code = self.config.get("Security", "delete_code", fallback="1234")
+        else:
+            self.sicherheits_code = "1234" # Fallback
 
     def setup_ui(self):
         """Erstellt die Benutzeroberfläche."""
@@ -59,6 +71,7 @@ class ContactApp:
 
         tk.Button(btn_frame, text="Hinzufügen", command=self.hinzufuegen, bg="#4CAF50", fg="white", width=15).pack(side="left", padx=5)
         tk.Button(btn_frame, text="Ändern", command=self.aendern, bg="#2196F3", fg="white", width=15).pack(side="left", padx=5)
+        tk.Button(btn_frame, text="Zurücksetzen", command=self.clear_inputs, bg="#FF9800", fg="white", width=15).pack(side="left", padx=5)
         tk.Button(btn_frame, text="Löschen", command=self.loeschen, bg="#f44336", fg="white", width=15).pack(side="left", padx=5)
         tk.Button(btn_frame, text="Alle Löschen", command=self.alle_loeschen, bg="#333", fg="white", width=15).pack(side="left", padx=5)
 
@@ -186,6 +199,12 @@ class ContactApp:
             messagebox.showwarning("Warnung", "Bitte wähle einen Kontakt aus.")
             return
         
+        # Sicherheitsabfrage
+        eingabe = simpledialog.askstring("Sicherheit", "Bitte gib den Code zum Löschen ein:", show='*')
+        if eingabe != self.sicherheits_code:
+            messagebox.showerror("Fehler", "Falscher Code! Löschen abgebrochen.")
+            return
+
         if messagebox.askyesno("Bestätigung", "Soll dieser Kontakt wirklich gelöscht werden?"):
             # Original-Index holen
             original_index = int(selected[0])
@@ -199,6 +218,12 @@ class ContactApp:
             self.clear_inputs()
 
     def alle_loeschen(self):
+        # Sicherheitsabfrage
+        eingabe = simpledialog.askstring("Sicherheit", "Bitte gib den Code zum Löschen aller Kontakte ein:", show='*')
+        if eingabe != self.sicherheits_code:
+            messagebox.showerror("Fehler", "Falscher Code! Löschen abgebrochen.")
+            return
+
         if messagebox.askyesno("Gefahrenzone", "Willst du wirklich ALLE Kontakte löschen?"):
              self.kontakte.clear()
              data_manager.speichern(self.kontakte)
