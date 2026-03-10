@@ -17,6 +17,14 @@ class ContactApp:
         self.root.title("Contact Manager Pro")
         self.root.geometry("1000x700")
         self.root.configure(bg="#f0f0f0")
+        
+        # Grid-Gewichtung für das Hauptfenster (Wichtig für Responsivität)
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1) # Wir packen alles in ein Main-Frame
+        
+        self.main_frame = tk.Frame(self.root, bg="#f0f0f0")
+        self.main_frame.pack(fill="both", expand=True)
+        self.main_frame.columnconfigure(0, weight=1)
 
         # Daten laden
         self.kontakte = data_manager.laden()
@@ -39,11 +47,11 @@ class ContactApp:
     def setup_ui(self):
         """Erstellt die Benutzeroberfläche."""
         # --- Titel ---
-        title_label = tk.Label(self.root, text="CONTACT MANAGER", font=("Arial", 22, "bold"), bg="#f0f0f0", fg="#333")
-        title_label.pack(pady=(15, 5))
+        title_label = tk.Label(self.main_frame, text="CONTACT MANAGER", font=("Arial", 22, "bold"), bg="#f0f0f0", fg="#333")
+        title_label.pack(pady=(15, 5), fill="x")
 
         # --- Suchbereich ---
-        search_frame = tk.Frame(self.root, bg="#f0f0f0")
+        search_frame = tk.Frame(self.main_frame, bg="#f0f0f0")
         search_frame.pack(fill="x", padx=20, pady=5)
         
         tk.Label(search_frame, text="Suchen (z.B. 'A' oder 'zeige alle'):", bg="#f0f0f0", font=("Arial", 10, "bold")).pack(side="left", padx=5)
@@ -52,31 +60,42 @@ class ContactApp:
         self.search_entry.bind("<KeyRelease>", self.on_search_change)
         
         # --- Eingabeformular ---
-        form_frame = tk.LabelFrame(self.root, text="Kontakt-Details", padx=10, pady=10, bg="#f0f0f0", font=("Arial", 9, "bold"))
-        form_frame.pack(padx=20, pady=10, fill="x")
+        self.form_frame = tk.LabelFrame(self.main_frame, text="Kontakt-Details", padx=10, pady=10, bg="#f0f0f0", font=("Arial", 9, "bold"))
+        self.form_frame.pack(padx=20, pady=10, fill="x")
 
-        labels = ["Vorname:", "Nachname:", "Straße:", "PLZ:", "E-Mail:", "Telefon:", "Mobil:"]
+        self.labels_config = ["Vorname:", "Nachname:", "Straße:", "PLZ:", "E-Mail:", "Telefon:", "Mobil:"]
         self.entries = {}
+        self.entry_widgets = [] # Hilfsliste für schnellen Zugriff beim Redraw
 
-        for i, text in enumerate(labels):
-            row, col = divmod(i, 3)
-            tk.Label(form_frame, text=text, bg="#f0f0f0").grid(row=row*2, column=col, sticky="w", padx=5)
-            entry = tk.Entry(form_frame, width=28)
-            entry.grid(row=row*2+1, column=col, padx=5, pady=(0, 10))
+        for text in self.labels_config:
+            label = tk.Label(self.form_frame, text=text, bg="#f0f0f0")
+            entry = tk.Entry(self.form_frame, width=28)
             self.entries[text] = entry
+            self.entry_widgets.append((label, entry))
+
+        # Initiales Layout setzen
+        self.root.update_idletasks() # Sicherstellen, dass Geometrie bekannt ist
+        self.reorganize_form()
+        
+        # Bind Resize-Event
+        self.root.bind("<Configure>", self.on_root_configure)
 
         # --- Buttons (Aktionen) ---
-        btn_frame = tk.Frame(self.root, bg="#f0f0f0")
-        btn_frame.pack(pady=5)
+        btn_frame = tk.Frame(self.main_frame, bg="#f0f0f0")
+        btn_frame.pack(pady=5, fill="x")
+        
+        # Container für die Buttons, um sie zu zentrieren und flexibel zu halten
+        btn_inner_frame = tk.Frame(btn_frame, bg="#f0f0f0")
+        btn_inner_frame.pack(anchor="center")
 
-        tk.Button(btn_frame, text="Hinzufügen", command=self.hinzufuegen, bg="#4CAF50", fg="white", width=15).pack(side="left", padx=5)
-        tk.Button(btn_frame, text="Ändern", command=self.aendern, bg="#2196F3", fg="white", width=15).pack(side="left", padx=5)
-        tk.Button(btn_frame, text="Zurücksetzen", command=self.clear_inputs, bg="#FF9800", fg="white", width=15).pack(side="left", padx=5)
-        tk.Button(btn_frame, text="Löschen", command=self.loeschen, bg="#f44336", fg="white", width=15).pack(side="left", padx=5)
-        tk.Button(btn_frame, text="Alle Löschen", command=self.alle_loeschen, bg="#333", fg="white", width=15).pack(side="left", padx=5)
+        tk.Button(btn_inner_frame, text="Hinzufügen", command=self.hinzufuegen, bg="#4CAF50", fg="white", width=15).pack(side="left", padx=5, pady=5)
+        tk.Button(btn_inner_frame, text="Ändern", command=self.aendern, bg="#2196F3", fg="white", width=15).pack(side="left", padx=5, pady=5)
+        tk.Button(btn_inner_frame, text="Zurücksetzen", command=self.clear_inputs, bg="#FF9800", fg="white", width=15).pack(side="left", padx=5, pady=5)
+        tk.Button(btn_inner_frame, text="Löschen", command=self.loeschen, bg="#f44336", fg="white", width=15).pack(side="left", padx=5, pady=5)
+        tk.Button(btn_inner_frame, text="Alle Löschen", command=self.alle_loeschen, bg="#333", fg="white", width=15).pack(side="left", padx=5, pady=5)
 
         # --- Tabelle ---
-        tab_frame = tk.Frame(self.root)
+        tab_frame = tk.Frame(self.main_frame)
         tab_frame.pack(padx=20, pady=10, fill="both", expand=True)
 
         spalten = ("Vorname", "Nachname", "Straße", "PLZ", "E-Mail", "Telefon", "Mobil")
@@ -84,7 +103,7 @@ class ContactApp:
         
         for col in spalten:
             self.tree.heading(col, text=col)
-            self.tree.column(col, width=140)
+            self.tree.column(col, width=100, minwidth=80, stretch=True)
 
         self.tree.pack(side="left", fill="both", expand=True)
         
@@ -93,6 +112,35 @@ class ContactApp:
         scrollbar.pack(side="right", fill="y")
 
         self.tree.bind("<<TreeviewSelect>>", self.on_select)
+
+    def on_root_configure(self, event):
+        """Wird aufgerufen, wenn das Fenster in der Größe verändert wird."""
+        # Wir reagieren nur auf Änderungen am Hauptfenster selbst
+        if event.widget == self.root:
+            self.reorganize_form()
+
+    def reorganize_form(self):
+        """Berechnet die Spaltenanzahl basierend auf der Breite und ordnet die Felder neu an."""
+        width = self.root.winfo_width()
+        
+        # Annahme: Ein Feld inkl. Padding braucht ca. 250 Pixel
+        num_cols = max(1, width // 300)
+        
+        # Alle Widgets erst mal aus dem Grid nehmen
+        for label, entry in self.entry_widgets:
+            label.grid_forget()
+            entry.grid_forget()
+            
+        # Grid-Gewichtung zurücksetzen
+        for i in range(10): # Genug Spalten abdecken
+            self.form_frame.columnconfigure(i, weight=0)
+
+        # Neu anordnen
+        for i, (label, entry) in enumerate(self.entry_widgets):
+            row, col = divmod(i, num_cols)
+            label.grid(row=row*2, column=col, sticky="w", padx=5)
+            entry.grid(row=row*2+1, column=col, sticky="ew", padx=5, pady=(0, 10))
+            self.form_frame.columnconfigure(col, weight=1)
 
     def on_search_change(self, event):
         """Wird bei jeder Tastatureingabe im Suchfeld aufgerufen."""
