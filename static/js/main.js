@@ -1,44 +1,82 @@
 document.addEventListener('DOMContentLoaded', () => {
     const contactForm = document.getElementById('contact-form');
-    const contactsBody = document.getElementById('contacts-body');
+    const contactResults = document.getElementById('contact-results');
     const searchInput = document.getElementById('search-input');
     const submitBtn = document.getElementById('submit-btn');
-    const cancelBtn = document.getElementById('cancel-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const deleteBtn = document.getElementById('delete-btn');
     const contactIndexInput = document.getElementById('contact-index');
+    const themeToggle = document.getElementById('theme-toggle');
+    const showAllBtn = document.getElementById('show-all-btn');
+    const listSection = document.getElementById('list-section');
 
     let allContacts = [];
     let isEditing = false;
+    let selectedContactIndex = -1;
 
-    // Fetch and display contacts
+    // Fetch and display contacts (internal state update)
     async function loadContacts() {
         try {
             const response = await fetch('/api/contacts');
             allContacts = await response.json();
-            renderTable(allContacts);
+            // We NO LONGER renderResults here initially for privacy
         } catch (error) {
             console.error('Fehler beim Laden:', error);
         }
     }
 
-    function renderTable(contacts) {
-        contactsBody.innerHTML = '';
+    function renderResults(contacts) {
+        if (contacts.length === 0) {
+            listSection.classList.add('hidden');
+            return;
+        }
+
+        listSection.classList.remove('hidden');
+        contactResults.innerHTML = '';
         contacts.forEach((contact, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${contact.vorname || ''}</td>
-                <td>${contact.nachname || ''}</td>
-                <td>${contact.strasse || ''}</td>
-                <td>${contact.plz || ''}</td>
-                <td>${contact.email || ''}</td>
-                <td>${contact.rufnummer || ''}</td>
-                <td>${contact.mobil || ''}</td>
-                <td class="actions-col">
-                    <button class="btn action-btn edit-btn" onclick="editContact(${index})">Ändern</button>
-                    <button class="btn action-btn delete-btn" onclick="deleteContact(${index})">Löschen</button>
-                </td>
+            // Find actual index in allContacts array
+            const actualIndex = allContacts.indexOf(contact);
+            
+            const card = document.createElement('div');
+            card.className = `contact-card ${selectedContactIndex === actualIndex ? 'active' : ''}`;
+            
+            const initials = (contact.vorname?.[0] || '') + (contact.nachname?.[0] || '');
+            
+            card.innerHTML = `
+                <div class="initials">${initials.toUpperCase()}</div>
+                <h3>${contact.vorname || ''} ${contact.nachname || ''}</h3>
             `;
-            contactsBody.appendChild(row);
+            
+            card.addEventListener('click', () => selectContact(actualIndex));
+            contactResults.appendChild(card);
         });
+    }
+
+    function selectContact(index) {
+        const contact = allContacts[index];
+        selectedContactIndex = index;
+        
+        document.getElementById('vorname').value = contact.vorname || '';
+        document.getElementById('nachname').value = contact.nachname || '';
+        document.getElementById('strasse').value = contact.strasse || '';
+        document.getElementById('plz').value = contact.plz || '';
+        document.getElementById('email').value = contact.email || '';
+        document.getElementById('rufnummer').value = contact.rufnummer || '';
+        document.getElementById('mobil').value = contact.mobil || '';
+        
+        contactIndexInput.value = index;
+        isEditing = true;
+        
+        submitBtn.textContent = 'Aktualisieren';
+        deleteBtn.classList.remove('hidden');
+        
+        // Highlight in grid
+        const cards = document.querySelectorAll('.contact-card');
+        cards.forEach((c, i) => {
+            c.classList.toggle('active', allContacts.indexOf(allContacts[i]) === index);
+        });
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // Handle form submit (Add/Update)
@@ -60,8 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let method = 'POST';
 
             if (isEditing) {
-                const index = contactIndexInput.value;
-                url = `/api/contacts/${index}`;
+                url = `/api/contacts/${selectedContactIndex}`;
                 method = 'PUT';
             }
 
@@ -72,64 +109,102 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
-                resetForm();
-                loadContacts();
+                await loadContacts();
+                if (isEditing) {
+                    // Stay selected but update view
+                    triggerSearch();
+                } else {
+                    resetForm();
+                    triggerSearch();
+                }
             }
         } catch (error) {
             console.error('Fehler beim Speichern:', error);
         }
     });
 
-    // Search functionality
-    searchInput.addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
+    function triggerSearch() {
+        const term = searchInput.value.toLowerCase().trim();
+        if (term === '') {
+            listSection.classList.add('hidden');
+            return;
+        }
+
         const filtered = allContacts.filter(c => 
             (c.vorname && c.vorname.toLowerCase().includes(term)) ||
             (c.nachname && c.nachname.toLowerCase().includes(term)) ||
             (c.rufnummer && c.rufnummer.includes(term)) ||
             (c.mobil && c.mobil.includes(term))
         );
-        renderTable(filtered);
+        renderResults(filtered);
+    }
+
+    // Search functionality
+    searchInput.addEventListener('input', triggerSearch);
+
+    // Show/Hide all button
+    showAllBtn.addEventListener('click', () => {
+        if (showAllBtn.textContent === 'Alle anzeigen') {
+            renderResults(allContacts);
+            searchInput.value = '';
+            showAllBtn.textContent = 'Alle verbergen';
+        } else {
+            listSection.classList.add('hidden');
+            showAllBtn.textContent = 'Alle anzeigen';
+        }
     });
 
-    // Exposed to window for onclick handlers
-    window.editContact = (index) => {
-        const contact = allContacts[index];
-        document.getElementById('vorname').value = contact.vorname || '';
-        document.getElementById('nachname').value = contact.nachname || '';
-        document.getElementById('strasse').value = contact.strasse || '';
-        document.getElementById('plz').value = contact.plz || '';
-        document.getElementById('email').value = contact.email || '';
-        document.getElementById('rufnummer').value = contact.rufnummer || '';
-        document.getElementById('mobil').value = contact.mobil || '';
-        
-        contactIndexInput.value = index;
-        isEditing = true;
-        submitBtn.textContent = 'Aktualisieren';
-        cancelBtn.classList.remove('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
+    // Reset UI when searching
+    searchInput.addEventListener('input', () => {
+        if (searchInput.value.trim() !== '') {
+            showAllBtn.textContent = 'Alle anzeigen';
+        }
+        triggerSearch();
+    });
 
-    window.deleteContact = async (index) => {
+    // Theme Toggle Logic
+    const currentTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+
+    themeToggle.addEventListener('click', () => {
+        let theme = document.documentElement.getAttribute('data-theme');
+        let newTheme = theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+    });
+
+    async function deleteSelected() {
+        if (selectedContactIndex === -1) return;
+        
         if (confirm('Soll dieser Kontakt wirklich gelöscht werden?')) {
             try {
-                const response = await fetch(`/api/contacts/${index}`, { method: 'DELETE' });
-                if (response.ok) loadContacts();
+                const response = await fetch(`/api/contacts/${selectedContactIndex}`, { method: 'DELETE' });
+                if (response.ok) {
+                    resetForm();
+                    await loadContacts();
+                    triggerSearch();
+                }
             } catch (error) {
                 console.error('Fehler beim Löschen:', error);
             }
         }
-    };
+    }
+
+    deleteBtn.addEventListener('click', deleteSelected);
 
     function resetForm() {
         contactForm.reset();
         contactIndexInput.value = '';
         isEditing = false;
+        selectedContactIndex = -1;
         submitBtn.textContent = 'Hinzufügen';
-        cancelBtn.classList.add('hidden');
+        deleteBtn.classList.add('hidden');
+        
+        // Clear active class
+        document.querySelectorAll('.contact-card').forEach(c => c.classList.remove('active'));
     }
 
-    cancelBtn.addEventListener('click', resetForm);
+    resetBtn.addEventListener('click', resetForm);
 
     // Initial load
     loadContacts();

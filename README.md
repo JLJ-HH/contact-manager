@@ -1,24 +1,44 @@
-# Contact Manager - GUI Verwaltungssystem (mit Suche)
+# Contact Manager Livi - Modernes Web & Desktop System
 
-Diese Anwendung wurde um eine leistungsfähige Such- und Filterfunktion erweitert.
+Contact Manager Livi ist eine hochmoderne Lösung zur Kontaktverwaltung, die sowohl als klassische Desktop-Anwendung (Tkinter) als auch als performante Web-App (Flask) zur Verfügung steht.
 
-## Funktionen
+## Highlights & Funktionen (Web-App)
 
-- **Gefilterte Anzeige**: Die Kontaktliste ist beim Start standardmäßig leer. Kontakte erscheinen erst, wenn du im Suchfeld tippst.
-- **Suche**: Filtere Kontakte in Echtzeit nach Vorname, Nachname oder Telefonnummer.
-- **Spezialbefehle**: Gib `zeige alle` oder `zeige liste` in das Suchfeld ein, um alle Kontakte auf einmal zu sehen.
-- **Punktuelles Ändern**: Wähle einen Kontakt in der Tabelle aus. Die Daten werden in die Felder geladen. Du kannst nun einzelne Felder (z.B. nur den Nachnamen) ändern und auf "Ändern" klicken.
-- **Clean Code**: Datenlogik (`data_manager.py`) und GUI (`contact_manager.py`) sind strikt getrennt.
+- **Datenschutz & Privacy**: Die Kontaktliste startet aus Datenschutzgründen leer. Daten werden erst durch gezielte Suche oder "Alle anzeigen" geladen.
+- **Detail-Ansicht Workflow**: Statt unübersichtlicher Tabellen nutzt Livi ein schickes Namens-Grid. Ein Klick auf eine Namenskachel lädt sofort alle Details in das Bearbeitungsformular.
+- **Modernes Design**:
+  - **Glassmorphism**: Edle, halbtransparente Oberflächen mit animierten Hintergründen.
+  - **Light & Dark Mode**: Integrierter Schalter (🌓) für optimales Arbeiten zu jeder Tageszeit.
+- **Voll Responsiv**: Perfekte Darstellung auf Smartphones, Tablets und Desktops dank adaptivem Design.
+- **Suche**: Echtzeit-Filterung nach Vorname, Nachname oder Nummern.
 
 ## Installation & Start
 
-1. **Voraussetzung**: Python 3.
-2. **Start**:
-   ```bash
-   python contact_manager.py
-   ```
+### 1. Web-App (Empfohlen)
+
+Die Web-Version bietet das modernste Erlebnis mit allen neuen Design-Features.
+
+```bash
+python app.py
+```
+
+Öffne anschließend [http://127.0.0.1:5000](http://127.0.0.1:5000) in deinem Browser (z.B. Edge).
+
+### 2. Desktop-App
+
+Die klassische lokale Version.
+
+```bash
+python contact_manager.py
+```
 
 ## Datenstruktur
 
-Die Daten liegen in der `contacts.txt` im Format:
-`Vorname|Nachname|Straße|PLZ|E-Mail|Telefonnummer`
+Die Kontakte werden in der `contacts.txt` gespeichert. Jedes Feld ist durch ein Pipe-Symbol (`|`) getrennt:
+`Vorname|Nachname|Straße|PLZ|E-Mail|Telefon|Mobil`
+
+## Tech Stack
+
+- **Backend**: Flask (Python)
+- **Frontend**: Vanilla JavaScript (ES6+), Modern CSS (Flexbox/Grid/Glassmorphism)
+- **Desktop**: Tkinter

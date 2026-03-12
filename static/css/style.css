@@ -8,6 +8,16 @@
     --text-main: #e0e0e0;
     --text-muted: #a0a0a0;
     --border: rgba(255, 255, 255, 0.1);
+    --bg-gradient: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+}
+
+[data-theme="light"] {
+    --dark: #f5f7fa;
+    --card-bg: rgba(255, 255, 255, 0.8);
+    --text-main: #2d3436;
+    --text-muted: #636e72;
+    --border: rgba(0, 0, 0, 0.1);
+    --bg-gradient: linear-gradient(135deg, #eef2f7 0%, #f5f7fa 100%);
 }
 
 * {
@@ -18,11 +28,12 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background-color: var(--dark);
+    background: var(--bg-gradient);
     color: var(--text-main);
     line-height: 1.6;
     overflow-x: hidden;
     min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
 }
 
 /* Background Blobs */
@@ -81,6 +92,33 @@ body {
 header {
     text-align: center;
     margin-bottom: 40px;
+    position: relative;
+}
+
+.header-top {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.btn-icon {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--text-main);
+    transition: all 0.3s;
+}
+
+.btn-icon:hover {
+    transform: rotate(15deg);
+    background: var(--border);
 }
 
 h1 {
@@ -208,6 +246,7 @@ input:focus {
     border: none;
     padding: 0;
     font-size: 1.1rem;
+    color: var(--text-main);
 }
 
 #search-input:focus {
@@ -215,81 +254,113 @@ input:focus {
     border-color: transparent;
 }
 
+.btn-text {
+    background: transparent;
+    border: none;
+    color: var(--secondary);
+    font-weight: 600;
+    cursor: pointer;
+    margin-right: 15px;
+    font-size: 0.9rem;
+    transition: opacity 0.3s;
+}
+
+.btn-text:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+}
+
 .search-icon {
     font-size: 1.2rem;
     color: var(--text-muted);
 }
 
-/* Table Management */
-.table-container {
-    overflow-x: auto;
-    padding: 0;
+/* Results Grid & Cards */
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 10px 0;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
+.contact-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 20px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100px;
+    animation: fadeIn 0.4s ease-out backwards;
 }
 
-th {
-    text-align: left;
-    padding: 18px 25px;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
-    border-bottom: 1px solid var(--border);
+.contact-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+    background: rgba(76, 175, 80, 0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
-td {
-    padding: 16px 25px;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.95rem;
-}
-
-tr:last-child td {
-    border-bottom: none;
-}
-
-tr {
-    transition: background 0.3s;
-}
-
-tr:hover {
-    background: rgba(255, 255, 255, 0.02);
-}
-
-.actions-col {
-    text-align: right;
-}
-
-.action-btn {
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    margin-left: 8px;
-}
-
-.edit-btn {
+.contact-card.active {
+    border-color: var(--secondary);
     background: rgba(33, 150, 243, 0.1);
-    color: var(--secondary);
-    border: 1px solid rgba(33, 150, 243, 0.2);
 }
 
-.edit-btn:hover {
-    background: var(--secondary);
+.contact-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: var(--text-main);
+}
+
+.contact-card .initials {
+    width: 40px;
+    height: 40px;
+    background: var(--primary);
     color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    font-size: 1rem;
+    font-weight: 800;
 }
 
-.delete-btn {
-    background: rgba(244, 67, 54, 0.1);
-    color: var(--accent);
-    border: 1px solid rgba(244, 67, 54, 0.2);
+/* Form Actions Revision */
+.form-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
-.delete-btn:hover {
-    background: var(--accent);
-    color: white;
+.danger-zone {
+    margin-left: auto;
+}
+
+@media screen and (max-width: 768px) {
+    .container {
+        padding: 20px 10px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .results-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 15px;
+    }
+
+    .danger-zone {
+        margin-left: 0;
+        width: 100%;
+    }
 }
 
 /* Animations */

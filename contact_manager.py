@@ -63,11 +63,7 @@ class ContactApp:
         self.form_frame = tk.LabelFrame(self.main_frame, text="Kontakt-Details", padx=10, pady=10, bg="#f0f0f0", font=("Arial", 9, "bold"))
         self.form_frame.pack(padx=20, pady=10, fill="x")
 
-<<<<<<< HEAD
-        labels = ["Vorname:", "Nachname:", "Straße:", "PLZ:", "E-Mail:", "Telefon:", "Mobil:"]
-=======
         self.labels_config = ["Vorname:", "Nachname:", "Straße:", "PLZ:", "E-Mail:", "Telefon:", "Mobil:"]
->>>>>>> 6e752066ceb5eb8ef4c70052184269978ae721dc
         self.entries = {}
         self.entry_widgets = [] # Hilfsliste für schnellen Zugriff beim Redraw
 
@@ -105,13 +101,19 @@ class ContactApp:
         spalten = ("Vorname", "Nachname", "Straße", "PLZ", "E-Mail", "Telefon", "Mobil")
         self.tree = ttk.Treeview(tab_frame, columns=spalten, show="headings")
         
-        for col in spalten:
+        spalten_info = {
+            "Vorname": 100,
+            "Nachname": 100,
+            "Straße": 150,
+            "PLZ": 60,
+            "E-Mail": 180,
+            "Telefon": 120,
+            "Mobil": 120
+        }
+        
+        for col, width in spalten_info.items():
             self.tree.heading(col, text=col)
-<<<<<<< HEAD
-            self.tree.column(col, width=120)
-=======
-            self.tree.column(col, width=100, minwidth=80, stretch=True)
->>>>>>> 6e752066ceb5eb8ef4c70052184269978ae721dc
+            self.tree.column(col, width=width, minwidth=width, stretch=True)
 
         self.tree.pack(side="left", fill="both", expand=True)
         
@@ -123,27 +125,21 @@ class ContactApp:
 
     def on_root_configure(self, event):
         """Wird aufgerufen, wenn das Fenster in der Größe verändert wird."""
-        # Wir reagieren nur auf Änderungen am Hauptfenster selbst
         if event.widget == self.root:
             self.reorganize_form()
 
     def reorganize_form(self):
         """Berechnet die Spaltenanzahl basierend auf der Breite und ordnet die Felder neu an."""
         width = self.root.winfo_width()
-        
-        # Annahme: Ein Feld inkl. Padding braucht ca. 250 Pixel
         num_cols = max(1, width // 300)
         
-        # Alle Widgets erst mal aus dem Grid nehmen
         for label, entry in self.entry_widgets:
             label.grid_forget()
             entry.grid_forget()
             
-        # Grid-Gewichtung zurücksetzen
-        for i in range(10): # Genug Spalten abdecken
+        for i in range(10): 
             self.form_frame.columnconfigure(i, weight=0)
 
-        # Neu anordnen
         for i, (label, entry) in enumerate(self.entry_widgets):
             row, col = divmod(i, num_cols)
             label.grid(row=row*2, column=col, sticky="w", padx=5)
@@ -154,7 +150,7 @@ class ContactApp:
         """Wird bei jeder Tastatureingabe im Suchfeld aufgerufen."""
         text = self.search_entry.get().strip().lower()
         if text == "":
-            self.update_tabelle(filter_text=None) # Liste leeren
+            self.update_tabelle(filter_text=None) 
         else:
             self.update_tabelle(filter_text=text)
 
@@ -163,12 +159,10 @@ class ContactApp:
         for item in self.tree.get_children():
             self.tree.delete(item)
         
-        # Wenn kein Filter gesetzt ist (oder Suchfeld leer), zeigen wir nichts an
         if filter_text is None:
             return
 
         for i, k in enumerate(self.kontakte):
-            # Prüfen, ob der Kontakt zum Filter passt
             matches = False
             if filter_text == "zeige alle" or filter_text == "zeige liste":
                 matches = True
@@ -179,7 +173,6 @@ class ContactApp:
                 matches = True
             
             if matches:
-                # Wir speichern den Original-Index als iid (item id)
                 self.tree.insert("", "end", iid=str(i), values=(k["vorname"], k["nachname"], k["strasse"], k["plz"], k["email"], k["rufnummer"], k.get("mobil", "")))
 
     def get_input_data(self):
@@ -207,8 +200,7 @@ class ContactApp:
         
         values = self.tree.item(selected[0])["values"]
         self.clear_inputs()
-        # Einträge befüllen (nur wenn Werte vorhanden sind)
-        for i, key in enumerate(["Vorname:", "Nachname:", "Straße:", "PLZ:", "E-Mail:", "Telefon:", "Mobil:"]):
+        for i, key in enumerate(self.labels_config):
             val = values[i]
             self.entries[key].insert(0, str(val) if val != "None" and val != "" else "")
 
@@ -221,7 +213,6 @@ class ContactApp:
         self.kontakte.append(data)
         data_manager.speichern(self.kontakte)
         
-        # Suche zurücksetzen und Liste aktualisieren
         self.search_entry.delete(0, tk.END)
         self.update_tabelle(filter_text="zeige alle")
         self.clear_inputs()
@@ -233,20 +224,16 @@ class ContactApp:
             messagebox.showwarning("Warnung", "Bitte wähle einen Kontakt aus der Tabelle aus.")
             return
         
-        # Wir holen den Original-Index aus der iid des Treeview-Items
         original_index = int(selected[0])
         new_data = self.get_input_data()
         
-        # Validierung
         if not new_data["vorname"] or not new_data["nachname"]:
             messagebox.showerror("Fehler", "Vor- und Nachname dürfen nicht leer sein.")
             return
 
-        # Den Kontakt direkt über den Index aktualisieren
         self.kontakte[original_index] = new_data
         data_manager.speichern(self.kontakte)
         
-        # Ansicht aktualisieren (Suchbegriff beibehalten falls vorhanden)
         current_search = self.search_entry.get().strip().lower()
         self.update_tabelle(filter_text=current_search if current_search else "zeige alle")
         messagebox.showinfo("Erfolg", "Kontakt wurde aktualisiert.")
@@ -257,26 +244,21 @@ class ContactApp:
             messagebox.showwarning("Warnung", "Bitte wähle einen Kontakt aus.")
             return
         
-        # Sicherheitsabfrage
         eingabe = simpledialog.askstring("Sicherheit", "Bitte gib den Code zum Löschen ein:", show='*')
         if eingabe != self.sicherheits_code:
             messagebox.showerror("Fehler", "Falscher Code! Löschen abgebrochen.")
             return
 
         if messagebox.askyesno("Bestätigung", "Soll dieser Kontakt wirklich gelöscht werden?"):
-            # Original-Index holen
             original_index = int(selected[0])
-            # Kontakt entfernen
             self.kontakte.pop(original_index)
             data_manager.speichern(self.kontakte)
             
-            # Tabelle aktualisieren
             current_search = self.search_entry.get().strip().lower()
             self.update_tabelle(filter_text=current_search if current_search else None)
             self.clear_inputs()
 
     def alle_loeschen(self):
-        # Sicherheitsabfrage
         eingabe = simpledialog.askstring("Sicherheit", "Bitte gib den Code zum Löschen aller Kontakte ein:", show='*')
         if eingabe != self.sicherheits_code:
             messagebox.showerror("Fehler", "Falscher Code! Löschen abgebrochen.")
