@@ -17,7 +17,7 @@ def ist_gueltige_email(email):
     return "@" in email and "." in email
 
 def laden():
-    """Läd Kontakte aus der Datei (Format: Vorname|Nachname|Straße|PLZ|Email|Tel)."""
+    """Läd Kontakte aus der Datei (Format: Vorname|Nachname|Straße|PLZ|Email|Tel|Mobil)."""
     liste = []
     if not os.path.exists(DATEINAME):
         return liste
@@ -26,8 +26,19 @@ def laden():
         with open(DATEINAME, "r", encoding="utf-8") as datei:
             for zeile in datei:
                 teile = zeile.strip().split("|")
-                # Wir unterstützen jetzt 6 Felder (Neu) oder 5 Felder (Migration)
-                if len(teile) == 6:
+                # Wir unterstützen jetzt 7 Felder (Neu), 6 Felder (Alt) oder 5 Felder (Migration)
+                if len(teile) == 7:
+                    vorname, nachname, strasse, plz, email, rufnummer, mobil = teile
+                    liste.append({
+                        "vorname": vorname,
+                        "nachname": nachname,
+                        "strasse": strasse,
+                        "plz": plz,
+                        "email": email,
+                        "rufnummer": rufnummer,
+                        "mobil": mobil
+                    })
+                elif len(teile) == 6:
                     vorname, nachname, strasse, plz, email, rufnummer = teile
                     liste.append({
                         "vorname": vorname,
@@ -35,7 +46,8 @@ def laden():
                         "strasse": strasse,
                         "plz": plz,
                         "email": email,
-                        "rufnummer": rufnummer
+                        "rufnummer": rufnummer,
+                        "mobil": "" # Neues Feld initial leer
                     })
                 elif len(teile) == 5:
                     # Migration: Voller Name war im ersten Feld
@@ -49,7 +61,8 @@ def laden():
                         "strasse": strasse,
                         "plz": plz,
                         "email": email,
-                        "rufnummer": rufnummer
+                        "rufnummer": rufnummer,
+                        "mobil": ""
                     })
     except Exception as e:
         print(f"Fehler beim Laden: {e}")
@@ -61,6 +74,8 @@ def speichern(contact_liste):
     try:
         with open(DATEINAME, "w", encoding="utf-8") as datei:
             for e in contact_liste:
-                datei.write(f"{e['vorname']}|{e['nachname']}|{e['strasse']}|{e['plz']}|{e['email']}|{e['rufnummer']}\n")
+                # Sicherstellen, dass alle Felder vorhanden sind
+                m = e.get("mobil", "")
+                datei.write(f"{e['vorname']}|{e['nachname']}|{e['strasse']}|{e['plz']}|{e['email']}|{e['rufnummer']}|{m}\n")
     except IOError as e:
         print(f"Fehler beim Speichern: {e}")
