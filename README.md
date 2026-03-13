@@ -18,19 +18,6 @@ Contact Manager Livi ist eine hochmoderne Lösung zur Kontaktverwaltung, die sow
 
 Die Web-Version bietet das modernste Erlebnis mit allen neuen Design-Features.
 
-```bash
-python app.py
-```
-
-Öffne anschließend [http://127.0.0.1:5000](http://127.0.0.1:5000) in deinem Browser (z.B. Edge).
-
-### 2. Desktop-App
-
-Die klassische lokale Version.
-
-```bash
-python contact_manager.py
-```
 
 ## Datenstruktur
 
@@ -42,3 +29,9 @@ Die Kontakte werden in der `contacts.txt` gespeichert. Jedes Feld ist durch ein 
 - **Backend**: Flask (Python)
 - **Frontend**: Vanilla JavaScript (ES6+), Modern CSS (Flexbox/Grid/Glassmorphism)
 - **Desktop**: Tkinter
+
+## Autor
+
+**José Luis Juárez** - Angehender Anwendungsentwickler aus Hamburg.
+
+[Strato Portfolio]([https://jljuarez.de/](https://jljuarez.de/contact-manager/))
