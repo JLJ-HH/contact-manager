@@ -34,4 +34,4 @@ Die Kontakte werden in der `contacts.txt` gespeichert. Jedes Feld ist durch ein 
 
 **José Luis Juárez** - Angehender Anwendungsentwickler aus Hamburg.
 
-[Strato Portfolio]([https://jljuarez.de/](https://jljuarez.de/contact-manager/))
+[Strato Portfolio]([https://jljuarez.de/](https://jljuarez.de/contact-manager/)
